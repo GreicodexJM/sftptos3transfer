@@ -5,7 +5,7 @@
 This script facilitates the transfer of files from an SFTP server to an AWS S3 bucket using PHP. It is designed to support multiple transfer profiles, allowing for flexible configuration and automation of file transfers.
 
 ### Key Features:
-- Transfer files from SFTP to S3.
+- Transfer files from SFTP to S3 and back.
 - Supports renaming and content manipulation of files.
 - Logs all operations and maintains an audit log.
 - Configurable through a JSON file.
