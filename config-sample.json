@@ -1,0 +1,48 @@
+{
+    "s3": {
+        "bucket": "your_s3_bucket",
+        "credentials": {
+            "key": "S3_KEY",
+            "secret": "S3_SECRET"
+        },
+        "region": "us-west-2",
+        "version": "latest"
+    },
+    "audit_log": "/var/log/audit.log",
+    "transfer_log": "/var/log/audit.log",
+    "download_path": "/path/to/downloaded_files",
+    "profiles": {
+        "server_1": {
+            "sftp": {
+                "host": "HOSTNAME",
+                "port": 22,
+                "username": "USER",
+                "password": "SECRET",
+                "root": "ROOT"
+            },
+            "source_path": "",
+            "destination_path": "",
+            "filter": "*.*"
+        },
+        "server_2": {
+            "sftp": {
+                "host": "HOSTNAME",
+                "port": 22,
+                "username": "USER",
+                "privateKey": "/path/to/privatekey",
+                "privateKeyPassphrase": "your-passphrase",
+                "root": "ROOT"
+            },
+            "source_path": "",
+            "destination_path": "",
+            "search_replace_patterns": {
+                "/pattern1/": "replacement1",
+                "/pattern2/": "replacement2"
+            },
+            "wildcard_filters": [
+                "*.txt",
+                "*.csv"
+            ]
+        }
+    }
+}

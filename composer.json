@@ -1,0 +1,49 @@
+{
+    "type": "project",
+    "license": "MIT",
+    "name": "greicodex/sftps3transfer",
+    "require": {
+        "php": ">=7.3",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "aws/aws-sdk-php": "^3.308",
+        "composer/package-versions-deprecated": "1.11.99.4",
+        "league/flysystem-aws-s3-v3": "^3.0",
+        "league/flysystem-sftp-v3": "^3.0",
+        "phpdocumentor/reflection-docblock": "^5.3",
+        "phpseclib/phpseclib": "^3.0",
+        "phpstan/phpdoc-parser": "^1.2",
+        "scrivo/highlight.php": "v9.18.1.9"
+    },    
+    "require-dev": {
+        "codeception/codeception": "^5.0",
+        "codeception/module-asserts": "^3.0",
+        "codeception/module-doctrine2": "^3.0",
+        "codeception/module-phpbrowser": "^2.5",
+        "codeception/module-rest": "^3.3",
+        "codeception/module-symfony": "^3.1",
+        "overtrue/phplint": "^3.1",
+        "phpunit/phpunit": "^9.5"
+    },
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "symfony/flex": true
+        },
+	    "platform-check": false
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
+        }
+    }
+}
