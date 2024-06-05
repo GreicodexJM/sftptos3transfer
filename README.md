@@ -194,8 +194,7 @@ Here is a detailed example of `config.json`:
             "search_replace_patterns": {
                 "foo": "bar",
                 "hello": "world"
-            },
-            "rename_pattern": "recv-%date%-%time%.%meta[GS01]%-%filename%.%extension%"
+            }
         }
     }
 }
