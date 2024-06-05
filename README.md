@@ -178,6 +178,7 @@ Here is a detailed example of `config.json`:
     "audit_log": "/var/log/audit.log",
     "transfer_log": "/var/log/transfer.log",
     "profiles": {
+        "mode": "push",
         "example_profile": {
             "sftp": {
                 "host": "sftp.example.com",
@@ -193,7 +194,8 @@ Here is a detailed example of `config.json`:
             "search_replace_patterns": {
                 "foo": "bar",
                 "hello": "world"
-            }
+            },
+            "rename_pattern": "recv-%date%-%time%.%meta[GS01]%-%filename%.%extension%"
         }
     }
 }
