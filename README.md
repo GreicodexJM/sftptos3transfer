@@ -44,9 +44,9 @@ Create a configuration file `config.json` in the same directory as the script. T
   * `rename_pattern`: Changes the filename written into `destination_path` based on a string pattern with replacement tokens. The pattern can be used to create a unique syntax on filenames so files can be differentiated. The accepted tokens are:
     * `%filename%`: base filename without extension
     * `%extension%`: filename extension
-    * `%date%`: current date of the transfer in 20XX-XX-XX format
+    * `%date%`: current date of the transfer in YYYY-MM-DD format
     * `%time%`: current time of the transfer in HH:MM:SS format
-    * `%meta[###]%`: Internal data values for EDI files only ISA01..ISA16 and GS01..GS08 are supported. For XML only `ShipToCode` tags are supported   
+    * `%meta[###]%`: Internal data values for EDI files only `ISA01..ISA16` and `GS01..GS08` are supported. For XML only `ShipToCode` tags are supported   
 
 Here is an example configuration:
 
