@@ -13,6 +13,7 @@
     "download_path": "/path/to/downloaded_files",
     "profiles": {
         "server_1": {
+            "mode": "pull",
             "sftp": {
                 "host": "HOSTNAME",
                 "port": 22,
@@ -22,9 +23,11 @@
             },
             "source_path": "",
             "destination_path": "",
-            "filter": "*.*"
+            "filter": "*.*",
+            "rename_pattern": "prod-%date%-%time%.%meta[ISA03]%-%meta[ISA04]%.%extension%"
         },
         "server_2": {
+            "mode": "push",
             "sftp": {
                 "host": "HOSTNAME",
                 "port": 22,

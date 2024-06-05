@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-require 'vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
 use Aws\S3\S3Client;
 use League\Flysystem\Filesystem;
@@ -16,7 +16,7 @@ class SFTPToS3Transfer
     private $sftpFileSystem;
     public function __construct($config_filename)
     {
-        // Load configuration from file
+        // Load configuration from file 
         $this->config = json_decode(file_get_contents($config_filename), true);
         if (false === $this->config) {
             throw new Error("Unable to read config $config_filename");
@@ -35,6 +35,42 @@ class SFTPToS3Transfer
     }
 
     /**
+     * Read some of the file content to extract tags/data
+     */
+    private function getMetadata($meta_tag,$localFilePath) {
+        //Check content to extract some meta-data
+        $fp=fopen($localFilePath,'r');
+        if($fp) {        
+            $keys = ['ISA01','ISA02','ISA03','ISA04','ISA05','ISA06','ISA07','ISA08','ISA09','ISA10','ISA11','ISA12','ISA13','ISA14','ISA15','ISA16',
+                     'GS01','GS02','GS03','GS04','GS05','GS06','GS07','GS08',
+                     'ST01','ST02'];
+            if(in_array($meta_tag,$keys)) {
+                $hdr = fread($fp,256);
+                $sep = $hdr[3];
+                $del = $hdr[105];
+                $segments =explode($del,$hdr);
+                $metadata=[];
+                foreach($segments as $k=>$line) {
+                    $elements = explode($sep,$line);
+                    $elements = array_map('trim',$elements); 
+                    for($id=1;$id<count($elements);$id++) {
+                        $ele_id = sprintf('%s%02d',$elements[0],$id);
+                        $metadata[$ele_id]=$elements[$id];
+                    }
+                }
+                return $metadata[$meta_tag];
+            }else{
+                $hdr = fread($fp,2048);
+                $matches=[];
+                if(preg_match("|<$meta_tag>([^<]*)</$meta_tag>|m",$hdr,$matches)) {
+                    return $matches[1];
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * The pattern will be an expression that combines literal characters and tokens enclosed in '%' in the form: "xxxx%token%yyyy"
      * Tokens will be evaluated with other functions that will take as input the token parameters, the filename and return an string 
      * that will be replaced in place of the token. If a literal '%' then double escape sequence should be used, like: '%%'
@@ -49,22 +85,8 @@ class SFTPToS3Transfer
         if($pattern === null) {
             return $sourceFilename;
         }
-        $METADATA=[];
-        //Check content to extract some meta-data
-        $fp=fopen($localFilePath,'r');
-        if($fp) {
-            $hdr = fread($fp,256);
-            if(substr($hdr,0,3) == 'ISA') {
-                $sep = $hdr[3];
-                $values=explode($sep,$hdr);                
-                $keys = ['ISA01','ISA02','ISA03','ISA04','ISA05','ISA06','ISA07','ISA08','ISA09','ISA10','ISA11','ISA12','ISA13','ISA14','ISA15','ISA16','GS01','GS02','GS03','GS04'];
-                $values=array_slice($values,1,count($keys));
-                $values = array_map('trim',$values);
-                $METADATA = array_combine($keys,$values);
-            }
-        }
 
-        $replaceToken = function (string $token) use ($sourceFilename, $METADATA): string {
+        $replaceToken = function (string $token) use ($sourceFilename, $localFilePath): string {
             switch ($token) {
                 case 'filename':
                     return pathinfo($sourceFilename, PATHINFO_FILENAME);
@@ -78,8 +100,9 @@ class SFTPToS3Transfer
                     return date('His');
                 default:
                     if(preg_match('/meta\[([^\]]+)\]/',$token,$var)){
-                        if(isset($METADATA[$var[1]])){
-                            return $METADATA[$var[1]];
+                        $value = $this->getMetadata($var[1],$localFilePath);
+                        if($value !== false) {
+                            return "$value";
                         }
                     }
                     // If the token is not recognized, keep it as is
@@ -97,6 +120,7 @@ class SFTPToS3Transfer
 
         return $newFilename;
     }
+
     // Define function to download and upload files
     function transferFiles($sourceFSystem,$destinationFSystem,$profileConfig)
     {
@@ -107,7 +131,7 @@ class SFTPToS3Transfer
         $renamePattern = $profileConfig['rename_pattern'] ?? null;
         $searchReplace = $profileConfig['search_replace_patterns'] ?? [];
         $dispose = $profileConfig['disposition'] ?? 1;
-
+        $mode = $profileConfig['mode'] ?? 'pull';
         $downloadedFiles = [];
         $uploadedFiles = [];
 
@@ -155,7 +179,7 @@ class SFTPToS3Transfer
                     $destinationFSystem->writeStream($destinationPath . '/' . $newFileName, fopen($modifiedLocalFilePath, 'r'));
                     $this->logMessage("Uploaded files: $newFileName of " . filesize($localFilePath) . " bytes");
                     $uploadedFiles[$file_basename] = $newFileName;
-                    $this->auditTransfer($file['path'], $destinationPath . '/' . $newFileName, $bytes);
+                    $this->auditTransfer($mode, $file['path'], $destinationPath . '/' . $newFileName, $bytes);
                     // Remove local temporary file
                     unlink($localFilePath);
                     unlink($modifiedLocalFilePath);
@@ -239,9 +263,13 @@ class SFTPToS3Transfer
             }
         }
     }
-    private function auditTransfer($source, $target, $bytes)
+    private function auditTransfer($mode, $source, $target, $bytes)
     {
-        $formatted_message = sprintf('[%s]: Transfer sftp://%s -> S3://%s (%d bytes) ' . PHP_EOL, date('Y-m-d H:i:s'), $source, $target, $bytes);
+        if($mode == 'pull') {
+            $formatted_message = sprintf('[%s]: Transfer sftp://%s -> S3://%s (%d bytes) ' . PHP_EOL, date('Y-m-d H:i:s'), $source, $target, $bytes);
+        }else{
+            $formatted_message = sprintf('[%s]: Transfer S3://%s -> sftp://%s (%d bytes) ' . PHP_EOL, date('Y-m-d H:i:s'), $source, $target, $bytes);
+        }
         file_put_contents($this->config['audit_log'], $formatted_message, FILE_APPEND);
     }
     private function logMessage($message)
