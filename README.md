@@ -33,20 +33,20 @@ Create a configuration file `config.json` in the same directory as the script. T
 ### Configuration Parameters
 
 * S3: This includes the AWS bucket and credentials needed to read / store the SFTP files exchanged.
-* audit_log & transfer_log: Local filepaths to store the corresponding logs. These logs are append only, make sure to rotate them with a tool like "logrotate" on linux to avoid them filling up the disk.
+* `audit_log` & `transfer_log`: Local filepaths to store the corresponding logs. These logs are append only, make sure to rotate them with a tool like "logrotate" on linux to avoid them filling up the disk.
 * Profiles: Each SFTP connection is organized in profiles. Each profile can be arbitrarily name as long as it follows a JSON Variable name convention.
-  * mode: Either `pull` or `push`. If set to `pull` the files from the SFTP will be downloaded to the AWS S3 folder. If set to `push` the files from the AWS S3 bucket will be uploaded into the SFTP server.
-  * sftp: Connection server and credentials, both username/password and username/private_key is supported.
-  * source_path: The SFTP or AWS_S3 path from which the files should be read from.
-  * destination_path: The SFTP or AWS_S3 path from which the files should be written to.
-  * wildcard_filters: Affects the `source_path`, only the files matching one of the filters will be considered for uploading.
-  * search_replace_patterns: Affects the output, the file is modified before uploading with a simple text search and replace.
-  * rename_pattern: Changes the filename written into `destination_path` based on a string pattern with replacement tokens. The pattern can be used to create a unique syntax on filenames so files can be differentiated. The accepted tokens are:
-    * %filename%: base filename without extension
-    * %extension%: filename extension
-    * %date%: current date of the transfer in 20XX-XX-XX format
-    * %time%: current time of the transfer in HH:MM:SS format
-    * %meta[###]%: Internal data values for EDI files only ISA01..ISA16 and GS01..GS08 are supported. For XML only `ShipToCode` tags are supported   
+  * `mode`: Either `pull` or `push`. If set to `pull` the files from the SFTP will be downloaded to the AWS S3 folder. If set to `push` the files from the AWS S3 bucket will be uploaded into the SFTP server.
+  * `sftp`: Connection server and credentials, both username/password and username/private_key is supported.
+  * `source_path`: The SFTP or AWS_S3 path from which the files should be read from.
+  * `destination_path`: The SFTP or AWS_S3 path from which the files should be written to.
+  * `wildcard_filters`: Affects the `source_path`, only the files matching one of the filters will be considered for uploading.
+  * `search_replace_patterns`: Affects the output, the file is modified before uploading with a simple text search and replace.
+  * `rename_pattern`: Changes the filename written into `destination_path` based on a string pattern with replacement tokens. The pattern can be used to create a unique syntax on filenames so files can be differentiated. The accepted tokens are:
+    * `%filename%`: base filename without extension
+    * `%extension%`: filename extension
+    * `%date%`: current date of the transfer in 20XX-XX-XX format
+    * `%time%`: current time of the transfer in HH:MM:SS format
+    * `%meta[###]%`: Internal data values for EDI files only ISA01..ISA16 and GS01..GS08 are supported. For XML only `ShipToCode` tags are supported   
 
 Here is an example configuration:
 
